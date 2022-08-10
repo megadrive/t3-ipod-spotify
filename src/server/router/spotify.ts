@@ -38,6 +38,7 @@ export const spotifyRouter = createProtectedRouter().query("get-playlists", {
     });
     if (response.status === 401) {
       // Sign the user out
+      console.log("Attempting to sign the user out");
       await fetch(
         ctx.req?.headers.origin ??
           "http://localhost:3000/" + "/api/auth/signout",
@@ -48,6 +49,7 @@ export const spotifyRouter = createProtectedRouter().query("get-playlists", {
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "Bad token, reauthenticate.",
+        cause: "token",
       });
     } else if (response.status === 403) {
       // Bad OAuth request.
@@ -65,7 +67,6 @@ export const spotifyRouter = createProtectedRouter().query("get-playlists", {
     const data: { items: { id: string; name: string }[] } =
       await response.json();
 
-    console.log(data);
     return data.items.map((playlist) => {
       const { id, name } = playlist;
       return {
