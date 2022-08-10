@@ -3,48 +3,53 @@ import { unstable_getServerSession as getServerSession } from "next-auth";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import type { Session } from "next-auth";
 import { trpc } from "../utils/trpc";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 interface PlayProps {
   session: Session;
 }
 
-const Play: NextPage<PlayProps> = ({ session }) => {
-  const spotify = trpc.useQuery(["spotify.get-playlists"]);
-
-  const [canPlay, setCanPlay] = useState(false);
-
-  const onSelectChanged = () => {
-    setCanPlay(true);
-  };
-
+const PhoneMockup: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="m-auto">
       <div className="mockup-phone">
         <div className="camera"></div>
         <div className="display">
-          <div className="artboard artboard-demo phone-1">
-            <select
-              onChange={onSelectChanged}
-              className="select select-bordered w-full max-w-xs"
-              defaultValue="unselected"
-            >
-              <option disabled value="unselected">
-                Pick a playlist to begin
-              </option>
-              {spotify.data?.map((playlist: any) => (
-                <option key={playlist.id} defaultValue={playlist.id}>
-                  {playlist.name}
-                </option>
-              ))}
-            </select>
-            <button className="btn w-full mt-3" disabled={!canPlay}>
-              Play!
-            </button>
-          </div>
+          <div className="artboard artboard-demo phone-1">{children}</div>
         </div>
       </div>
     </div>
+  );
+};
+
+const Play: NextPage<PlayProps> = ({ session }) => {
+  const spotify = trpc.useQuery(["spotify.get-playlists"]);
+
+  const [canPlay, setCanPlay] = useState(false);
+  const onSelectChanged = () => {
+    setCanPlay(true);
+  };
+
+  return (
+    <PhoneMockup>
+      <select
+        onChange={onSelectChanged}
+        className="select select-bordered w-full max-w-xs"
+        defaultValue="unselected"
+      >
+        <option disabled value="unselected">
+          Pick a playlist to begin
+        </option>
+        {spotify.data?.map((playlist: any) => (
+          <option key={playlist.id} defaultValue={playlist.id}>
+            {playlist.name}
+          </option>
+        ))}
+      </select>
+      <button className="btn w-full mt-3" disabled={!canPlay}>
+        Play!
+      </button>
+    </PhoneMockup>
   );
 };
 
