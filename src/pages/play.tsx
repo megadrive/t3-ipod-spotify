@@ -3,6 +3,7 @@ import { unstable_getServerSession as getServerSession } from "next-auth";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import type { Session } from "next-auth";
 import { trpc } from "../utils/trpc";
+import { useRef, useState } from "react";
 
 interface PlayProps {
   session: Session;
@@ -10,7 +11,12 @@ interface PlayProps {
 
 const Play: NextPage<PlayProps> = ({ session }) => {
   const spotify = trpc.useQuery(["spotify.get-playlists"]);
-  console.log(spotify);
+
+  const [canPlay, setCanPlay] = useState(false);
+
+  const onSelectChanged = () => {
+    setCanPlay(true);
+  };
 
   return (
     <div className="m-auto">
@@ -19,10 +25,11 @@ const Play: NextPage<PlayProps> = ({ session }) => {
         <div className="display">
           <div className="artboard artboard-demo phone-1">
             <select
+              onChange={onSelectChanged}
               className="select select-bordered w-full max-w-xs"
               defaultValue="unselected"
             >
-              <option defaultValue="unselected" disabled>
+              <option disabled value="unselected">
                 Pick a playlist to begin
               </option>
               {spotify.data?.map((playlist: any) => (
@@ -31,6 +38,9 @@ const Play: NextPage<PlayProps> = ({ session }) => {
                 </option>
               ))}
             </select>
+            <button className="btn w-full mt-3" disabled={!canPlay}>
+              Play!
+            </button>
           </div>
         </div>
       </div>
