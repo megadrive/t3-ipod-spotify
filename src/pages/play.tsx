@@ -3,14 +3,14 @@ import { unstable_getServerSession as getServerSession } from "next-auth";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import type { Session } from "next-auth";
 import { trpc } from "../utils/trpc";
-import React, { ChangeEventHandler, useRef, useState } from "react";
+import React, { ChangeEventHandler, useState } from "react";
 import { useRouter } from "next/router";
 
 interface PlayProps {
   session: Session;
 }
 
-const PhoneMockup: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="m-auto">
       <div className="mockup-phone">
@@ -25,17 +25,19 @@ const PhoneMockup: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 interface SpotifyPlaylist {
   id: string;
-  name: string;
+  name?: string;
 }
 
 const Play: NextPage<PlayProps> = () => {
   const spotify = trpc.useQuery(["spotify.get-playlists"]);
-  console.log(spotify.isError, spotify.error);
 
   const [playlist, setPlaylist] = useState<SpotifyPlaylist>();
   const [canPlay, setCanPlay] = useState(false);
   const onSelectChanged: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    console.log(e.target.value);
+    setPlaylist({
+      id: e.target.value,
+      name: e.target[e.target.selectedIndex]?.innerText,
+    });
     setCanPlay(true);
   };
 
@@ -44,7 +46,7 @@ const Play: NextPage<PlayProps> = () => {
   };
 
   return (
-    <PhoneMockup>
+    <Layout>
       {spotify.isLoading ? (
         <>Loading..</>
       ) : (
@@ -58,7 +60,7 @@ const Play: NextPage<PlayProps> = () => {
               Pick a playlist to begin
             </option>
             {spotify.data?.map((playlist: any) => (
-              <option key={playlist.id} defaultValue={playlist.id}>
+              <option key={playlist.id} value={playlist.id}>
                 {playlist.name}
               </option>
             ))}
@@ -72,7 +74,7 @@ const Play: NextPage<PlayProps> = () => {
           </button>
         </>
       )}
-    </PhoneMockup>
+    </Layout>
   );
 };
 

@@ -8,22 +8,6 @@ export const protectedSessionRouter = createProtectedRouter()
       return ctx.session;
     },
   })
-  .query("get-user", {
-    async resolve({ ctx }) {
-      const userWithPlaylist = await ctx.prisma.user.findFirst({
-        where: {
-          id: {
-            equals: ctx.session.user.id,
-          },
-        },
-        include: {
-          playlists: true,
-        },
-      });
-
-      return userWithPlaylist;
-    },
-  })
   .mutation("logout-user", {
     async resolve({ ctx }) {
       await fetch(env.NEXTAUTH_URL + "/api/auth/signout", {
