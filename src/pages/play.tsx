@@ -33,6 +33,7 @@ const Play: NextPage<PlayProps> = () => {
 
   const [playlist, setPlaylist] = useState<SpotifyPlaylist>();
   const [canPlay, setCanPlay] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
   const onSelectChanged: ChangeEventHandler<HTMLSelectElement> = (e) => {
     setPlaylist({
       id: e.target.value,
@@ -40,8 +41,21 @@ const Play: NextPage<PlayProps> = () => {
     });
     setCanPlay(true);
   };
+  const playlistSongs = trpc.useQuery(
+    ["spotify.get-playlist-songs", parseInt(playlist?.id ?? "0")], // lmao
+    {
+      enabled: canPlay && gameStarted,
+      placeholderData: [
+        {
+          id: 0,
+          name: "peepe",
+        },
+      ],
+    }
+  );
 
   const startGame = () => {
+    //
     return null;
   };
 
